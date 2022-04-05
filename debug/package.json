@@ -1,6 +1,6 @@
 {
-    "private": true,
-    "dependencies": {
-      "facade.ts": "file:../dist"
-    }
+  "private": true,
+  "dependencies": {
+    "facade.ts": "file:../dist"
   }
+}

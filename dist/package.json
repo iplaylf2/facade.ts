@@ -1,0 +1,35 @@
+{
+  "name": "facade.ts",
+  "version": "0.0.0",
+  "description": "A functional style library for TypeScript.",
+  "main": "./facade.js",
+  "scripts": {
+    "init": "npm install",
+    "build": "npx gulp build",
+    "init-debug": "npm run build && cd debug && npm install",
+    "pack": "npx gulp pack",
+    "publish-npm": "npx gulp pack && npm publish ./package",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iplaylf2/facade.ts.git"
+  },
+  "keywords": [
+    "typescript",
+    "curring",
+    "lambda",
+    "javascript"
+  ],
+  "author": "i-play-lf2",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "typescript": "^4.6.3"
+  },
+  "bugs": {
+    "url": "https://github.com/iplaylf2/facade.ts/issues"
+  },
+  "homepage": "https://github.com/iplaylf2/facade.ts#readme"
+}
