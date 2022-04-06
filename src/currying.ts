@@ -13,13 +13,12 @@ type FunctionSpread<T extends FunctionType> = T extends (
 ) => infer Return
   ? TrimTuple<Params> extends [...infer Params]
     ? Return extends FunctionType
-      ? FunctionSpread<Return> extends [
-          [...infer RestParams],
-          infer FinalReturn
-        ]
-        ? [[...Params, ...RestParams], FinalReturn]
+      ? FunctionSpread<Return> extends (
+          ...args: infer RestParams
+        ) => infer FinalReturn
+        ? (...args: [...Params, ...RestParams]) => FinalReturn
         : never
-      : [Params, Return]
+      : (...args: Params) => Return
     : never
   : never;
 
@@ -29,31 +28,31 @@ interface Placeholder {
   [placeholder]: unknown;
 }
 
-type ApplyPlaceholder<Argus extends unknown[], Params extends unknown[]> = [
-  Argus,
+type ApplyPlaceholder<Args extends unknown[], Params extends unknown[]> = [
+  Args,
   Params
 ] extends [[], Params]
   ? Params
-  : [Argus, Params] extends [
-      [infer Head1, ...infer Argus],
+  : [Args, Params] extends [
+      [infer Head1, ...infer Args],
       [infer Head2, ...infer Params]
     ]
   ? Head1 extends Head2
-    ? ApplyPlaceholder<Argus, Params>
+    ? ApplyPlaceholder<Args, Params>
     : Head1 extends Placeholder
-    ? [Head2, ...ApplyPlaceholder<Argus, Params>]
+    ? [Head2, ...ApplyPlaceholder<Args, Params>]
     : never
   : never;
 
-type CurryingFunction<T extends FunctionType> = <Argus extends unknown[]>(
-  ...args: Argus
-) => FunctionSpread<T> extends [[...infer Params], infer Return]
-  ? ApplyPlaceholder<Argus, Params> extends [...infer Params]
+type Currying<T extends FunctionType> = <Args extends unknown[]>(
+  ...args: Args
+) => FunctionSpread<T> extends (...args: infer Params) => infer Return
+  ? ApplyPlaceholder<Args, Params> extends [...infer Params]
     ? Params extends []
       ? Return
-      : CurryingFunction<(...args: Params) => Return>
+      : Currying<(...args: Params) => Return>
     : never
   : never;
 
 declare const $: Placeholder;
-declare const fooFunc: CurryingFunction<(a: 1, b: 2) => (b: 3, c?: 4) => 5>;
+declare const fooFunc: Currying<(a: 1, b: 2) => (b: 3, c?: 4) => 5>;
