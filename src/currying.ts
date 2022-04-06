@@ -1,13 +1,26 @@
 type FunctionType = (...args: any[]) => any;
 
+type TrimTuple<T extends unknown[]> = T extends []
+  ? []
+  : T extends [x?: infer Head, ..._: infer Rest]
+  ? [x?: Head, ..._: Rest] extends T
+    ? []
+    : [Head, ...TrimTuple<Rest>]
+  : never;
+
 type FunctionSpread<T extends FunctionType> = T extends (
   ...args: infer Params
 ) => infer Return
-  ? Return extends FunctionType
-    ? FunctionSpread<Return> extends [[...infer RestParams], infer FinalReturn]
-      ? [[...Params, ...RestParams], FinalReturn]
-      : never
-    : [Params, Return]
+  ? TrimTuple<Params> extends [...infer Params]
+    ? Return extends FunctionType
+      ? FunctionSpread<Return> extends [
+          [...infer RestParams],
+          infer FinalReturn
+        ]
+        ? [[...Params, ...RestParams], FinalReturn]
+        : never
+      : [Params, Return]
+    : never
   : never;
 
 const placeholder = Symbol("placeholder");
@@ -43,6 +56,4 @@ type CurryingFunction<T extends FunctionType> = <Argus extends unknown[]>(
   : never;
 
 declare const $: Placeholder;
-declare const fooFunc: CurryingFunction<(a: "a") => (b: "b", c: "c") => "d">;
-
-const x = fooFunc("a" as const, $, "c" as const);
+declare const fooFunc: CurryingFunction<(a: 1, b: 2) => (b: 3, c?: 4) => 5>;
