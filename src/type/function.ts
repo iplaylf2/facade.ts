@@ -1,28 +1,7 @@
 import { TrimTuple } from "./tuple";
+import { ApplyWithPlaceholder } from "./argument";
 
 export type FunctionType = (...args: any[]) => any;
-
-export const placeholder = Symbol("placeholder");
-
-export interface Placeholder {
-  [placeholder]: unknown;
-}
-
-type ApplyWithPlaceholder<Args extends unknown[], Params extends unknown[]> = [
-  Args,
-  Params
-] extends [[], Params]
-  ? Params
-  : [Args, Params] extends [
-      [infer Head1, ...infer Args],
-      [infer Head2, ...infer Params]
-    ]
-  ? Head1 extends Head2
-    ? ApplyWithPlaceholder<Args, Params>
-    : Head1 extends Placeholder
-    ? [Head2, ...ApplyWithPlaceholder<Args, Params>]
-    : never
-  : never;
 
 type RawFunction<T extends FunctionType> = T extends Currying<infer T> ? T : T;
 

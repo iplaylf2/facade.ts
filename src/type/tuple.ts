@@ -1,7 +1,7 @@
 export type TrimTuple<T extends unknown[]> = T extends []
   ? []
-  : T extends [x?: infer Head, ..._: infer Rest]
-  ? [x?: Head, ..._: Rest] extends T
-    ? []
-    : [Head, ...TrimTuple<Rest>]
+  : T extends [..._: infer Front, x?: infer Tail]
+  ? [..._: Front, x?: Tail] extends T
+    ? TrimTuple<Front>
+    : [...Front, Tail]
   : never;
