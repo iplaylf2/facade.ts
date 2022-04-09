@@ -1,1 +1,1 @@
-export const init = null;
+export * from "./$"

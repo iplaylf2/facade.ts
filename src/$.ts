@@ -12,7 +12,7 @@ const currying = function <T extends FunctionType>(f: T): Currying<T> {
   const argument = new Argument();
   let current_f = f;
 
-  const handler = function (...args: unknown[]) {
+  const handler = function (this: unknown, ...args: unknown[]): any {
     argument.apply(args);
     const [enough, actual_args] = argument.tryTake(current_f.length);
     if (enough) {
