@@ -2,5 +2,10 @@
   "private": true,
   "dependencies": {
     "facade.ts": "file:../dist"
+  },
+  "devDependencies": {
+    "@types/jest": "*",
+    "jest": "*",
+    "ts-jest": "^27.1.4"
   }
 }

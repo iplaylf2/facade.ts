@@ -4,7 +4,7 @@ import { LinkedList } from "../type/container";
 export class Argument {
   constructor() {
     this.#argumentQueue = [];
-    this.#placeholderDummy = {} as LinkedList<number>;
+    this.#placeholderDummy = { x: 0, next: null };
     this.#placeholderTail = null;
     this.#takeCount = 0;
   }
@@ -14,7 +14,7 @@ export class Argument {
     let current = last.next;
 
     for (const x of argument) {
-      if (x !== undefined && x !== null && placeholder in (x as any)) {
+      if ("object" === typeof x && null !== x && placeholder in x) {
         if (null === current) {
           const node = {
             x: this.#takeCount + this.#argumentQueue.length,
@@ -25,16 +25,21 @@ export class Argument {
 
           if (null === this.#placeholderTail) {
             this.#placeholderDummy.next = node;
-            this.#placeholderTail = node;
           } else {
             this.#placeholderTail.next = node;
           }
+
+          this.#placeholderTail = node;
         }
       } else {
         if (null === current) {
           this.#argumentQueue.push(x);
         } else {
           this.#argumentQueue[current.x - this.#takeCount] = x;
+          if (this.#placeholderTail === current) {
+            this.#placeholderTail = null;
+          }
+
           last.next = current.next;
           current = last;
         }
