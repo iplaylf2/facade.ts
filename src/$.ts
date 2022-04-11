@@ -3,80 +3,69 @@ import { placeholder, Placeholder } from "./type/argument";
 
 const currying_function = Symbol("curring-function");
 
+const isPlaceholder = function (x: unknown): x is Placeholder {
+  return (
+    undefined !== x && null !== x && Object.hasOwn(x as object, placeholder)
+  );
+};
+
 const let_currying = function (f: FunctionType, length: number): any {
   const anchor = function (this: unknown, ...args: unknown[]): any {
     const preload: unknown[] = [];
+    const redirect: number[] = [];
 
     for (let i = 0; length !== i && args.length !== i; i++) {
       const current = args[i];
-      if (
-        "object" === typeof current &&
-        null !== current &&
-        placeholder in current
-      ) {
-        break;
+      if (isPlaceholder(current)) {
+        redirect.push(i);
+        preload.push(undefined);
       } else {
         preload.push(current);
       }
     }
 
-    if (length === preload.length) {
-      const result = f.apply(this, preload);
-      if (result instanceof Function) {
-        const restArgs = args.slice(length);
-        if (currying_function in result) {
-          return result.apply(this, restArgs);
+    if (0 === redirect.length) {
+      if (length === preload.length) {
+        const result = f.apply(this, preload);
+        if (result instanceof Function) {
+          const restArgs = args.slice(length);
+          if (currying_function in result) {
+            return result.apply(this, restArgs);
+          } else {
+            return let_currying(result, result.length).apply(this, restArgs);
+          }
         } else {
-          return let_currying(result, result.length).apply(this, restArgs);
+          if (length === args.length) {
+            return result;
+          } else {
+            throw args;
+          }
         }
       } else {
-        if (length === args.length) {
-          return result;
+        if (0 === args.length) {
+          return anchor;
         } else {
-          throw args;
+          return let_currying(function (this: unknown, ...args) {
+            return f.call(this, ...preload, ...args);
+          }, length - preload.length);
         }
       }
     } else {
-      if (0 === preload.length) {
-        return anchor;
-      }
+      const restArgs = args.slice(preload.length);
 
-      if (args.length === preload.length) {
-        return let_currying(function (this: unknown, ...args) {
-          return f.call(this, ...preload, ...args);
-        }, length - args.length);
-      } else {
-        const redirect: number[] = [];
-        for (let i = preload.length; length !== i && args.length !== i; i++) {
-          const current = args[i];
-          if (
-            "object" === typeof current &&
-            null !== current &&
-            placeholder in current
-          ) {
-            redirect.push(i);
-            preload.push(undefined);
-          } else {
-            preload.push(current);
-          }
+      return let_currying(function (this: unknown, ...args) {
+        const copy = preload.slice();
+        for (let i = 0; redirect.length !== i; i++) {
+          copy[redirect[i]!] = args[i];
         }
 
-        const restArgs = args.slice(length);
-
-        return let_currying(function (this: unknown, ...args) {
-          const copy = preload.slice();
-          for (let i = 0; redirect.length !== i; i++) {
-            copy[redirect[i]!] = args[i];
-          }
-
-          return f.call(
-            this,
-            ...copy,
-            ...args.slice(redirect.length),
-            ...restArgs
-          );
-        }, length - preload.length + redirect.length);
-      }
+        return f.call(
+          this,
+          ...copy,
+          ...args.slice(redirect.length),
+          ...restArgs
+        );
+      }, length - preload.length + redirect.length);
     }
   };
 
