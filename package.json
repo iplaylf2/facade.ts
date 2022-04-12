@@ -5,10 +5,10 @@
   "main": "./facade.js",
   "scripts": {
     "init": "npm install",
-    "build": "npx gulp build",
+    "build": "gulp build",
     "init-debug": "npm run build && cd debug && npm install",
-    "pack": "npx gulp pack",
-    "publish-npm": "npx gulp pack && npm publish ./package",
+    "pack": "gulp pack",
+    "publish-npm": "gulp pack && npm publish ./package",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
