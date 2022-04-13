@@ -6,6 +6,23 @@ import {
 
 export type FunctionType = (...args: any[]) => any;
 
+export type Currying<T extends FunctionType> = <
+  SpreadFunction extends FunctionSpread<T>,
+  Params extends Parameters<SpreadFunction>,
+  Return extends ReturnType<SpreadFunction>,
+  Args extends PartialAndEnablePlaceholder<Params>
+>(
+  ...args: Args
+) => ApplyWithPlaceholder<Params, Args> extends infer Params
+  ? Params extends never
+    ? Params
+    : Params extends []
+    ? Return
+    : Params extends [...infer Params]
+    ? Currying<(...args: Params) => Return>
+    : never
+  : never;
+
 type RawFunction<T extends FunctionType> = T extends Currying<infer T> ? T : T;
 
 type LinkFunction<
@@ -27,21 +44,4 @@ type FunctionSpread<T extends FunctionType> = RawFunction<T> extends (
     : Return extends FunctionType
     ? LinkFunction<Params, FunctionSpread<Return>>
     : (...args: Params) => Return
-  : never;
-
-export type Currying<T extends FunctionType> = <
-  SpreadFunction extends FunctionSpread<T>,
-  Params extends Parameters<SpreadFunction>,
-  Return extends ReturnType<SpreadFunction>,
-  Args extends PartialAndEnablePlaceholder<Params>
->(
-  ...args: Args
-) => ApplyWithPlaceholder<Params, Args> extends infer Params
-  ? Params extends never
-    ? Params
-    : Params extends []
-    ? Return
-    : Params extends [...infer Params]
-    ? Currying<(...args: Params) => Return>
-    : never
   : never;

@@ -1,2 +1,2 @@
-export * from "./$";
-export * from "./$class";
+export { $ } from "./$";
+export { $class } from "./$class";

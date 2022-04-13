@@ -1,7 +1,7 @@
 import { ClassType } from "./type/class";
 import { HaveOptionalParameter, FixParameter } from "./type/argument";
 import { Currying } from "./type/function";
-import { $ } from "./$";
+import { letCurrying } from "./$";
 
 export function $class<T extends ClassType>(
   ctor: T
@@ -20,15 +20,5 @@ export function $class<
   ? Currying<(...args: FixParameter<Params, K>) => Instance>
   : never;
 export function $class(ctor: ClassType, length = ctor.length): any {
-  return $(
-    new Proxy((...args: unknown[]) => new ctor(...args), {
-      get(ctor, p) {
-        if ("length" === p) {
-          return length;
-        } else {
-          return (ctor as any)[p];
-        }
-      },
-    })
-  );
+  return letCurrying((...args: unknown[]) => new ctor(...args), length);
 }

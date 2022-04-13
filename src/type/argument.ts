@@ -1,4 +1,5 @@
 import { LinkTuple } from "./tuple";
+import { NonUndefinedAble } from "./value";
 
 export type HaveOptionalParameter<T extends unknown[]> = T extends [
   ..._: infer Front,
