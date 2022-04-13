@@ -1,22 +1,34 @@
 import { ClassType } from "./type/class";
 import { HaveOptionalParameter, FixParameter } from "./type/argument";
 import { Currying } from "./type/function";
+import { $ } from "./$";
 
 export function $class<T extends ClassType>(
-  f: T
+  ctor: T
 ): T extends new (...args: infer Params) => infer Instance
-  ? never extends HaveOptionalParameter<Params>
+  ? HaveOptionalParameter<Params> extends false
     ? Currying<(...args: Params) => Instance>
     : never
   : never;
 export function $class<
   T extends ClassType,
-  K extends ConstructorParameters<T>["length"]
+  K extends Exclude<ConstructorParameters<T>["length"], 0>
 >(
-  f: T,
+  ctor: T,
   length: K
 ): T extends new (...args: infer Params) => infer Instance
   ? Currying<(...args: FixParameter<Params, K>) => Instance>
   : never;
-export function $class(f: ClassType, length?: number): any {}
-
+export function $class(ctor: ClassType, length = ctor.length): any {
+  return $(
+    new Proxy((...args: unknown[]) => new ctor(...args), {
+      get(ctor, p) {
+        if ("length" === p) {
+          return length;
+        } else {
+          return (ctor as any)[p];
+        }
+      },
+    })
+  );
+}

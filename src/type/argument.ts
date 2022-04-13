@@ -5,9 +5,9 @@ export type HaveOptionalParameter<T extends unknown[]> = T extends [
   _?: infer Tail
 ]
   ? [..._: Front, _?: Tail] extends T
-    ? T
-    : never
-  : never;
+    ? true
+    : false
+  : false;
 
 export const placeholder = Symbol("placeholder");
 
@@ -40,12 +40,14 @@ export type ApplyWithPlaceholder<
 
 export type FixParameter<
   T extends unknown[],
-  Length,
+  Length extends number,
   R extends unknown[] = []
-> = Length extends R["length"]
+> = [R["length"]] extends [Length]
   ? R
   : T extends []
   ? never
   : T extends [_?: infer X, ..._: infer Rest]
-  ? FixParameter<Rest, Length, [...R, NonNullable<X>]>
+  ? [_?: X, ..._: Rest] extends T
+    ? FixParameter<Rest, Length, [...R, NonUndefinedAble<X>]>
+    : FixParameter<Rest, Length, [...R, X]>
   : never;
