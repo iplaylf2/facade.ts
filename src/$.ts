@@ -1,23 +1,26 @@
 import { Currying, FunctionType } from "./type/function";
-import { placeholder, Placeholder } from "./type/argument";
+import { FixParameter, placeholder, Placeholder } from "./type/argument";
 
-export const $: (<T extends FunctionType>(f: T) => Currying<T>) & Placeholder =
-  Object.assign(
-    <T extends FunctionType>(f: T) => {
-      if (currying_function in f) {
-        return f;
-      } else {
-        if (0 === f.length) {
-          throw f;
-        } else {
-          return letCurrying(f, f.length);
-        }
-      }
-    },
-    {
-      [placeholder]: true,
+export const $: {
+  <T extends FunctionType>(f: T): Currying<T>;
+  <T extends FunctionType, K extends Exclude<Parameters<T>["length"], 0>>(
+    f: T,
+    length: K
+  ): T extends (...args: infer Params) => infer Return
+    ? Currying<(...args: FixParameter<Params, K>) => Return>
+    : never;
+} & Placeholder = Object.assign(
+  (f: FunctionType, length = f.length) => {
+    if (currying_function in f) {
+      return f;
+    } else {
+      return letCurrying(f, length);
     }
-  );
+  },
+  {
+    [placeholder]: true,
+  }
+);
 
 export const letCurrying = function (f: FunctionType, length: number): any {
   const anchor = function (this: unknown, ...args: unknown[]): any {

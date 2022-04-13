@@ -37,11 +37,11 @@ type LinkFunction<
 type FunctionSpread<T extends FunctionType> = RawFunction<T> extends (
   ...args: infer Params
 ) => infer Return
-  ? Params extends HaveOptionalParameter<Params>
+  ? HaveOptionalParameter<Params> extends true
     ? never
     : Return extends never
-    ? (...args: Params) => Return
+    ? T
     : Return extends FunctionType
     ? LinkFunction<Params, FunctionSpread<Return>>
-    : (...args: Params) => Return
+    : T
   : never;
