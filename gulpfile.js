@@ -23,7 +23,7 @@ function mkdirDist(cb) {
 }
 
 function cleanDir(name, cb) {
-  fs.rmdir(name, { recursive: true, force: true }, cb);
+  fs.rm(name, { recursive: true }, cb);
 }
 
 function cleanCodeDist(cb) {

@@ -1,16 +1,16 @@
-import { Currying, FunctionType } from "./type/function";
+import { Currying, GeneralFunction } from "./type/function";
 import { FixParameter, placeholder, Placeholder } from "./type/argument";
 
 export const $: {
-  <T extends FunctionType>(f: T): Currying<T>;
-  <T extends FunctionType, K extends Exclude<Parameters<T>["length"], 0>>(
+  <T extends GeneralFunction>(f: T): Currying<T>;
+  <T extends GeneralFunction, K extends Exclude<Parameters<T>["length"], 0>>(
     f: T,
     length: K
   ): T extends (...args: infer Params) => infer Return
     ? Currying<(...args: FixParameter<Params, K>) => Return>
     : never;
 } & Placeholder = Object.assign(
-  (f: FunctionType, length = f.length) => {
+  (f: GeneralFunction, length = f.length) => {
     if (currying_function in f) {
       return f;
     } else {
@@ -22,7 +22,7 @@ export const $: {
   }
 );
 
-export const letCurrying = function (f: FunctionType, length: number): any {
+export const letCurrying = function (f: GeneralFunction, length: number): any {
   const anchor = function (this: unknown, ...args: unknown[]): any {
     if (0 !== length && 0 === args.length) {
       return anchor;
@@ -44,7 +44,7 @@ const isPlaceholder = function (x: unknown): x is Placeholder {
 
 const run_currying = function (
   this: unknown,
-  f: FunctionType,
+  f: GeneralFunction,
   length: number,
   args: unknown[]
 ): any {
@@ -97,7 +97,7 @@ const apply_rest_argument = function (
     } else {
       return run_currying.call(
         this,
-        result as FunctionType,
+        result as GeneralFunction,
         result.length,
         restArgs
       );
@@ -111,7 +111,7 @@ const apply_rest_argument = function (
   }
 };
 
-const tag_currying = function (f: FunctionType) {
+const tag_currying = function (f: GeneralFunction) {
   return Object.assign(f, {
     [currying_function]: true,
   });

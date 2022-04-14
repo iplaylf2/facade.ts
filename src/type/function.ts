@@ -4,9 +4,11 @@ import {
   PartialAndEnablePlaceholder,
 } from "./argument";
 
-export type FunctionType = (...args: any[]) => any;
+export type GeneralFunction<Params extends any[] = any, Return = any> = (
+  ...args: Params
+) => Return;
 
-export type Currying<T extends FunctionType> = <
+export type Currying<T extends GeneralFunction> = <
   SpreadFunction extends FunctionSpread<T>,
   Params extends Parameters<SpreadFunction>,
   Return extends ReturnType<SpreadFunction>,
@@ -23,25 +25,24 @@ export type Currying<T extends FunctionType> = <
     : never
   : never;
 
-type RawFunction<T extends FunctionType> = T extends Currying<infer T> ? T : T;
+type RawFunction<T extends GeneralFunction> = T extends Currying<infer T> ? T : T;
 
 type LinkFunction<
   Params extends unknown[],
-  T extends FunctionType
+  T extends GeneralFunction
 > = T extends never
   ? T
-  : T extends (...args: infer Rest) => infer Return
-  ? (...args: [...Params, ...Rest]) => Return
+  : T extends GeneralFunction<infer Rest, infer Return>
+  ? GeneralFunction<[...Params, ...Rest], Return>
   : never;
 
-type FunctionSpread<T extends FunctionType> = RawFunction<T> extends (
-  ...args: infer Params
-) => infer Return
-  ? HaveOptionalParameter<Params> extends true
-    ? never
-    : Return extends never
-    ? T
-    : Return extends FunctionType
-    ? LinkFunction<Params, FunctionSpread<Return>>
-    : T
-  : never;
+type FunctionSpread<T extends GeneralFunction> =
+  RawFunction<T> extends GeneralFunction<infer Params, infer Return>
+    ? HaveOptionalParameter<Params> extends true
+      ? never
+      : Return extends never
+      ? T
+      : Return extends GeneralFunction
+      ? LinkFunction<Params, FunctionSpread<Return>>
+      : T
+    : never;
