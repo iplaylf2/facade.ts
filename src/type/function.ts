@@ -46,7 +46,7 @@ export type ComposeFunction<
         BaseFunction<[infer From], infer Out>,
         BaseFunction<[infer In], infer To>
       ]
-      ? Out extends In
+      ? [Out] extends [In]
         ? Rest extends BaseFunction[]
           ? ComposeFunction<(x: From) => To, Rest>
           : never

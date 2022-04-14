@@ -34,7 +34,7 @@ export type ApplyWithPlaceholder<
       [infer Head1, ...infer Params],
       [infer Head2, ...infer Args]
     ]
-  ? Head2 extends Head1
+  ? [Head2] extends [Head1]
     ? ApplyWithPlaceholder<Params, Args>
     : Head2 extends Placeholder
     ? LinkTuple<Head1, ApplyWithPlaceholder<Params, Args>>

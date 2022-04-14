@@ -1,4 +1,4 @@
-import { $, $class } from "facade.ts";
+import { $, $class, compose } from "facade.ts";
 
 describe("$", () => {
   const foo = (a1: string, b1: number, c1: boolean) => {
@@ -74,5 +74,21 @@ describe("$class", () => {
 
     const CFoo = $class(Foo, 1);
     expect(CFoo(1)).toEqual(new Foo(1));
+  });
+});
+
+describe("compose", () => {
+  const a = (x: string) => x.length;
+  const b = (x: number) => x % 2 === 0;
+  const c = (x: boolean) => x.toString();
+
+  test("1", () => {
+    const x = "zzzz";
+    expect(compose(a, b, c)(x)).toEqual(c(b(a(x))));
+  });
+
+  test("2", () => {
+    const x = "zzzzz";
+    expect(compose(a, b, c)(x)).toEqual(c(b(a(x))));
   });
 });
