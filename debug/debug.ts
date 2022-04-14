@@ -1,5 +1,7 @@
-import { $ } from "facade.ts";
+import { $, $class, margin } from "facade.ts";
+import { Currying } from "facade.ts/type/function";
 
-const foo = $((a:1,b:2,c:3) => (d:4,e:5,f:6) => 100);
-
-console.log(foo(1,2,3,4));
+const delay = (ms: number): Promise<void> => {
+  const delayCb = $(setTimeout, 2)($, ms);
+  return $class(Promise)(flip(margin(delayCb, 1)));
+};
