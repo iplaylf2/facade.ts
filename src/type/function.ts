@@ -10,13 +10,13 @@ export type BaseFunction<Params extends any[] = any, Return = any> = (
 
 export type FunctionSpread<T extends BaseFunction> =
   RawFunction<T> extends BaseFunction<infer Params, infer Return>
-    ? HaveOptionalParameter<Params> extends true
-      ? never
-      : Return extends never
-      ? T
-      : Return extends BaseFunction
-      ? LinkFunction<Params, FunctionSpread<Return>>
-      : (...args: Params) => Return
+    ? HaveOptionalParameter<Params> extends false
+      ? Return extends never
+        ? (...args: Params) => Return
+        : Return extends BaseFunction
+        ? LinkFunction<Params, FunctionSpread<Return>>
+        : (...args: Params) => Return
+      : never
     : never;
 
 export type Currying<T extends BaseFunction> = <

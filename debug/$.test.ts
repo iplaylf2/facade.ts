@@ -1,7 +1,7 @@
 import { $, $class } from "facade.ts";
 
 describe("$", () => {
-  const source = (a1: string, b1: number, c1: boolean) => {
+  const foo = (a1: string, b1: number, c1: boolean) => {
     return (a2: string, b2: number, c2: boolean) => {
       return (a3: string, b3: number, c3: boolean) => {
         return (a4: string, b4: number, c4: boolean) => {
@@ -11,33 +11,44 @@ describe("$", () => {
     };
   };
 
-  const fooFunc = $(source);
+  const cfoo = $(foo);
 
   test("1", () => {
-    expect(fooFunc).toEqual(fooFunc());
+    expect(cfoo()).toEqual(cfoo);
+  });
+
+  test("1.1", () => {
+    expect($(cfoo)).toEqual(cfoo);
   });
 
   test("2", () => {
     expect(
-      fooFunc("1", 2, true, "4", 5, true, "7", 8, true, "10", 11, true)
-    ).toEqual(source("1", 2, true)("4", 5, true)("7", 8, true)("10", 11, true));
+      cfoo("1", 2, true, "4", 5, true, "7", 8, true, "10", 11, true)
+    ).toEqual(foo("1", 2, true)("4", 5, true)("7", 8, true)("10", 11, true));
   });
 
   test("3", () => {
     expect(
-      fooFunc("1", 2)(true, "4", 5, true, "7")(8, true, "10")(11, true)
-    ).toEqual(source("1", 2, true)("4", 5, true)("7", 8, true)("10", 11, true));
+      cfoo("1", 2)(true, "4", 5, true, "7")(8, true, "10")(11, true)
+    ).toEqual(foo("1", 2, true)("4", 5, true)("7", 8, true)("10", 11, true));
   });
 
   test("4", () => {
     expect(
-      fooFunc("1", $)(2)($, "4", $, true, "7")(true, 5, $, true, $)(
+      cfoo("1", $)(2)($, "4", $, true, "7")(true, 5, $, true, $)(
         $,
         $,
         11,
         true
       )(8, "10")
-    ).toEqual(source("1", 2, true)("4", 5, true)("7", 8, true)("10", 11, true));
+    ).toEqual(foo("1", 2, true)("4", 5, true)("7", 8, true)("10", 11, true));
+  });
+
+  test("5", () => {
+    const foo = (a: string, b = 5) => a.repeat(b);
+    const cfoo = $(foo, 1);
+
+    expect(cfoo("zzz")).toEqual(foo("zzz"));
   });
 });
 
@@ -46,13 +57,22 @@ describe("$class", () => {
     constructor(public a: number, public b: string, public c: boolean) {}
   }
 
-  const bar = $class(Foo);
+  const CFoo = $class(Foo);
 
   test("1", () => {
-    expect(bar(1, "2", true)).toEqual(new Foo(1, "2", true));
+    expect(CFoo(1, "2", true)).toEqual(new Foo(1, "2", true));
   });
 
   test("2", () => {
-    expect(bar(1)("2")(true)).toEqual(new Foo(1, "2", true));
+    expect(CFoo(1)("2")(true)).toEqual(new Foo(1, "2", true));
+  });
+
+  test("3", () => {
+    class Foo {
+      constructor(public a: number, public b: string = "aaa") {}
+    }
+
+    const CFoo = $class(Foo, 1);
+    expect(CFoo(1)).toEqual(new Foo(1));
   });
 });

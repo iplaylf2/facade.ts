@@ -1,12 +1,14 @@
 import { ClassFunction } from "../type/class";
-import { FixParameter } from "../type/argument";
+import { FixParameter, HaveOptionalParameter } from "../type/argument";
 import { Currying } from "../type/function";
 import { letCurrying } from "./$";
 
 export function $class<T extends ClassFunction>(
   ctor: T
 ): T extends ClassFunction<infer Params, infer Instance>
-  ? Currying<(...args: Params) => Instance>
+  ? HaveOptionalParameter<Params> extends false
+    ? Currying<(...args: Params) => Instance>
+    : never
   : never;
 export function $class<T extends ClassFunction, K extends number>(
   ctor: T,
