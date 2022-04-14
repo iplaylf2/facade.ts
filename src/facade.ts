@@ -1,2 +1,3 @@
-export { $ } from "./$";
-export { $class } from "./$class";
+export { $ } from "./core/$";
+export { $class } from "./core/$class";
+export { compose } from "./core/compose";

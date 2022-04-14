@@ -1,16 +1,18 @@
-import { Currying, GeneralFunction } from "./type/function";
-import { FixParameter, placeholder, Placeholder } from "./type/argument";
+import { Currying, BaseFunction, FunctionSpread } from "../type/function";
+import { FixParameter, placeholder, Placeholder } from "../type/argument";
 
 export const $: {
-  <T extends GeneralFunction>(f: T): Currying<T>;
-  <T extends GeneralFunction, K extends Exclude<Parameters<T>["length"], 0>>(
+  <T extends BaseFunction>(f: T): Currying<FunctionSpread<T>>;
+  <T extends BaseFunction, K extends number>(
     f: T,
     length: K
-  ): T extends (...args: infer Params) => infer Return
-    ? Currying<(...args: FixParameter<Params, K>) => Return>
+  ): K extends Parameters<T>["length"]
+    ? T extends BaseFunction<infer Params, infer Return>
+      ? Currying<FunctionSpread<(...args: FixParameter<Params, K>) => Return>>
+      : never
     : never;
 } & Placeholder = Object.assign(
-  (f: GeneralFunction, length = f.length) => {
+  (f: BaseFunction, length = f.length) => {
     if (currying_function in f) {
       return f;
     } else {
@@ -22,7 +24,7 @@ export const $: {
   }
 );
 
-export const letCurrying = function (f: GeneralFunction, length: number): any {
+export const letCurrying = function (f: BaseFunction, length: number): any {
   const anchor = function (this: unknown, ...args: unknown[]): any {
     if (0 !== length && 0 === args.length) {
       return anchor;
@@ -44,7 +46,7 @@ const isPlaceholder = function (x: unknown): x is Placeholder {
 
 const run_currying = function (
   this: unknown,
-  f: GeneralFunction,
+  f: BaseFunction,
   length: number,
   args: unknown[]
 ): any {
@@ -97,7 +99,7 @@ const apply_rest_argument = function (
     } else {
       return run_currying.call(
         this,
-        result as GeneralFunction,
+        result as BaseFunction,
         result.length,
         restArgs
       );
@@ -111,7 +113,7 @@ const apply_rest_argument = function (
   }
 };
 
-const tag_currying = function (f: GeneralFunction) {
+const tag_currying = function (f: BaseFunction) {
   return Object.assign(f, {
     [currying_function]: true,
   });
