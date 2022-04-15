@@ -1,10 +1,9 @@
-import { LinkTuple } from "./tuple";
+import { LinkTuple, NotTuple } from "./tuple";
 import { IsAny, NonUndefinedAble } from "./value";
 
-export type HaveOptionalParameter<T extends unknown[]> = T extends [
-  ..._: infer Front,
-  _?: infer Tail
-]
+export type IsVariableParams<T extends unknown[]> = NotTuple<T> extends true
+  ? true
+  : T extends [..._: infer Front, _?: infer Tail]
   ? [..._: Front, _?: Tail] extends T
     ? true
     : false

@@ -1,6 +1,6 @@
 import {
   ApplyWithPlaceholder,
-  HaveOptionalParameter,
+  IsVariableParams,
   PartialAndEnablePlaceholder,
 } from "./argument";
 
@@ -10,7 +10,7 @@ export type BaseFunction<Params extends unknown[] = any, Return = any> = (
 
 export type FunctionSpread<T extends BaseFunction> =
   DeCurrying<T> extends BaseFunction<infer Params, infer Return>
-    ? HaveOptionalParameter<Params> extends false
+    ? IsVariableParams<Params> extends false
       ? Return extends never
         ? (...args: Params) => Return
         : Return extends BaseFunction
@@ -19,11 +19,12 @@ export type FunctionSpread<T extends BaseFunction> =
       : never
     : never;
 
-export type Currying<T extends BaseFunction> = <
-  Args extends PartialAndEnablePlaceholder<Parameters<T>>
->(
-  ...args: Args
-) => CurryingApply<T, Args>;
+export type Currying<T extends BaseFunction> = {
+  <Args extends PartialAndEnablePlaceholder<Parameters<T>>>(
+    ...args: Args
+  ): CurryingApply<T, Args>;
+  de: T;
+};
 
 export type ComposeFunction<
   A extends BaseFunction,

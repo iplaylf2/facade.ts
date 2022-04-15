@@ -25,15 +25,43 @@ export const $: {
 );
 
 export const letCurrying = function (f: BaseFunction, length: number): any {
-  const anchor = function (this: unknown, ...args: unknown[]): any {
+  const anchor = new Proxy(function (this: unknown, ...args: unknown[]): any {
     if (0 !== length && 0 === args.length) {
       return anchor;
     } else {
       return run_currying.call(this, f, length, args);
     }
-  };
+  }, currying_handler);
 
-  return tag_currying(anchor);
+  return anchor;
+};
+
+const currying_handler: ProxyHandler<any> = {
+  get(target, p, receiver) {
+    switch (p) {
+      case currying_function:
+        return true;
+      case "de":
+        return receiver;
+      default:
+        return target[p];
+    }
+  },
+  ownKeys(target) {
+    const result = Object.keys(target);
+    result.push("de");
+    return result;
+  },
+  has(target, p) {
+    switch (p) {
+      case currying_function:
+        return true;
+      case "de":
+        return true;
+      default:
+        return p in target;
+    }
+  },
 };
 
 const currying_function = Symbol("curring-function");
@@ -93,7 +121,7 @@ const apply_rest_argument = function (
   result: unknown,
   restArgs: unknown[]
 ): any {
-  if (result instanceof Function) {
+  if ("function" === typeof result) {
     if (currying_function in result) {
       return result.apply(this, restArgs);
     } else {
@@ -111,10 +139,4 @@ const apply_rest_argument = function (
       throw restArgs;
     }
   }
-};
-
-const tag_currying = function (f: BaseFunction) {
-  return Object.assign(f, {
-    [currying_function]: true,
-  });
 };
