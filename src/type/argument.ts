@@ -1,5 +1,5 @@
 import { LinkTuple } from "./tuple";
-import { NonUndefinedAble } from "./value";
+import { IsAny, NonUndefinedAble } from "./value";
 
 export type HaveOptionalParameter<T extends unknown[]> = T extends [
   ..._: infer Front,
@@ -34,7 +34,9 @@ export type ApplyWithPlaceholder<
       [infer Head1, ...infer Params],
       [infer Head2, ...infer Args]
     ]
-  ? Head2 extends Placeholder
+  ? IsAny<Head2> extends true
+    ? ApplyWithPlaceholder<Params, Args>
+    : [Head2] extends [Placeholder]
     ? LinkTuple<Head1, ApplyWithPlaceholder<Params, Args>>
     : [Head2] extends [Head1]
     ? ApplyWithPlaceholder<Params, Args>
