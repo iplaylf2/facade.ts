@@ -18,7 +18,7 @@ export interface Placeholder {
 
 export type PartialAndEnablePlaceholder<Params extends unknown[]> =
   Params extends never
-    ? Params
+    ? never
     : Params extends []
     ? Params
     : Params extends [infer Head, ...infer Rest]

@@ -1,3 +1,4 @@
-export type ClassFunction<Params extends any[] = any, Instance = any> = new (
-  ...args: Params
-) => Instance;
+export type ClassFunction<
+  Params extends unknown[] = any,
+  Instance = any
+> = new (...args: Params) => Instance;

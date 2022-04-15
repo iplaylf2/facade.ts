@@ -4,12 +4,12 @@ import {
   PartialAndEnablePlaceholder,
 } from "./argument";
 
-export type BaseFunction<Params extends any[] = any, Return = any> = (
+export type BaseFunction<Params extends unknown[] = any, Return = any> = (
   ...args: Params
 ) => Return;
 
 export type FunctionSpread<T extends BaseFunction> =
-  RawFunction<T> extends BaseFunction<infer Params, infer Return>
+  DeCurrying<T> extends BaseFunction<infer Params, infer Return>
     ? HaveOptionalParameter<Params> extends false
       ? Return extends never
         ? (...args: Params) => Return
@@ -20,31 +20,21 @@ export type FunctionSpread<T extends BaseFunction> =
     : never;
 
 export type Currying<T extends BaseFunction> = <
-  Params extends Parameters<T>,
-  Return extends ReturnType<T>,
-  Args extends PartialAndEnablePlaceholder<Params>
+  Args extends PartialAndEnablePlaceholder<Parameters<T>>
 >(
   ...args: Args
-) => ApplyWithPlaceholder<Params, Args> extends infer Params
-  ? Params extends never
-    ? Params
-    : Params extends []
-    ? Return
-    : Params extends [...infer Params]
-    ? Currying<(...args: Params) => Return>
-    : never
-  : never;
+) => CurryingApply<T, Args>;
 
 export type ComposeFunction<
-  Begin extends BaseFunction,
+  A extends BaseFunction,
   Rest extends BaseFunction[]
 > = Rest extends []
-  ? Begin
-  : Rest extends [infer X, ...infer Rest]
-  ? X extends BaseFunction
-    ? [RawFunction<Begin>, RawFunction<X>] extends [
-        BaseFunction<[infer From], infer Out>,
-        BaseFunction<[infer In], infer To>
+  ? A
+  : Rest extends [infer B, ...infer Rest]
+  ? B extends BaseFunction
+    ? [DeCurrying<A>, DeCurrying<B>] extends [
+        MapFunction<infer From, infer Out>,
+        MapFunction<infer In, infer To>
       ]
       ? [Out] extends [In]
         ? Rest extends BaseFunction[]
@@ -55,13 +45,30 @@ export type ComposeFunction<
     : never
   : never;
 
-type RawFunction<T extends BaseFunction> = T extends Currying<infer T> ? T : T;
+type DeCurrying<T extends BaseFunction> = T extends Currying<infer T> ? T : T;
 
 type LinkFunction<
   Params extends unknown[],
   T extends BaseFunction
 > = T extends never
-  ? T
+  ? never
   : T extends BaseFunction<infer Rest, infer Return>
   ? (...args: [...Params, ...Rest]) => Return
   : never;
+
+type CurryingApply<
+  T extends BaseFunction,
+  Args extends unknown[]
+> = ApplyWithPlaceholder<Parameters<T>, Args> extends infer Params
+  ? Params extends never
+    ? never
+    : Params extends []
+    ? ReturnType<T>
+    : Params extends [...infer Params]
+    ? Currying<(...args: Params) => ReturnType<T>>
+    : never
+  : never;
+
+type MapFunction<Param extends any = any, Return extends any = any> = (
+  x: Param
+) => Return;

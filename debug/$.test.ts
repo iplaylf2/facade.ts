@@ -5,7 +5,7 @@ describe("$", () => {
     return (a2: string, b2: number, c2: boolean) => {
       return (a3: string, b3: number, c3: boolean) => {
         return (a4: string, b4: number, c4: boolean) => {
-          return [a1 + a2 + a3 + a4, b1 + b2 + b3 + b4, c1 && c2 && c3 && c4];
+          return [a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4];
         };
       };
     };
