@@ -15,12 +15,11 @@ export interface Placeholder {
   [placeholder]: unknown;
 }
 
-export type ParamsLoose<Params extends unknown[]> =
-  Params extends []
-    ? Params
-    : Params extends [infer Head, ...infer Rest]
-    ? [_?: Head | Placeholder, ..._: ParamsLoose<Rest>]
-    : never;
+export type ParamsLoose<Params extends unknown[]> = Params extends []
+  ? Params
+  : Params extends [infer Head, ...infer Rest]
+  ? [_?: Head | Placeholder, ..._: ParamsLoose<Rest>]
+  : never;
 
 export type TryPlaceholderApply<
   Params extends unknown[],

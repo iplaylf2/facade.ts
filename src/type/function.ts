@@ -1,4 +1,5 @@
 import { TryPlaceholderApply, IsVariableParams, ParamsLoose } from "./argument";
+import { IsAny } from "./value";
 
 export type BaseFunction<Params extends unknown[] = any, Return = any> = (
   ...args: Params
@@ -17,6 +18,27 @@ export type Currying<T extends BaseFunction> = {
   de: T;
 };
 
+export type CanCurryingExtend<
+  T extends BaseFunction,
+  K extends BaseFunction
+> = T extends K
+  ? true
+  : K extends Currying<infer K>
+  ? [K] extends [never]
+    ? false
+    : [Parameters<K>["length"]] extends [1]
+    ? [T] extends [K]
+      ? true
+      : false
+    : false
+  : T extends Currying<infer T>
+  ? [T] extends [never]
+    ? false
+    : [T] extends [K]
+    ? true
+    : false
+  : false;
+
 export type FunctionCompose<
   A extends BaseFunction,
   Rest extends BaseFunction[]
@@ -26,8 +48,8 @@ export type FunctionCompose<
   ? B extends BaseFunction
     ? Rest extends BaseFunction[]
       ? [TryMapFunctionSplit<A>, TryMapFunctionSplit<B>] extends [
-          [true, infer From, infer Out],
-          [true, infer In, infer To]
+          [infer From, infer Out],
+          [infer In, infer To]
         ]
         ? CanMapFunctionApply<Out, In> extends true
           ? FunctionCompose<(x: From) => To, Rest>
@@ -42,9 +64,11 @@ type DeCurrying<T extends BaseFunction> = T extends Currying<infer T> ? T : T;
 type TryFunctionSpread<T extends BaseFunction> =
   DeCurrying<T> extends BaseFunction<infer Params, infer Return>
     ? IsVariableParams<Params> extends false
-      ? Return extends never
+      ? [Return] extends [never]
         ? [BaseFunction<Params, Return>]
-        : Return extends BaseFunction
+        : IsAny<Return> extends true
+        ? [BaseFunction<Params, Return>]
+        : [Return] extends [BaseFunction]
         ? TryFunctionSpread<Return> extends [
             BaseFunction<infer Rest, infer Return>
           ]
@@ -58,7 +82,7 @@ type CurryingApply<
   T extends BaseFunction,
   Args extends unknown[]
 > = TryPlaceholderApply<Parameters<T>, Args> extends [[...infer Params]]
-  ? Params extends []
+  ? [Params] extends [[]]
     ? ReturnType<T>
     : Currying<(...args: Params) => ReturnType<T>>
   : never;
@@ -68,17 +92,29 @@ type MapFunction<Param extends any = any, Return extends any = any> = (
 ) => Return;
 
 type TryMapFunctionSplit<T extends BaseFunction> = T extends Currying<infer T>
-  ? T extends BaseFunction<[infer In, ...infer Rest], infer Return>
-    ? In extends never
+  ? [T] extends [BaseFunction<[infer In, ...infer Rest], infer Return>]
+    ? [In] extends [never]
       ? []
+      : [Rest] extends [[]]
+      ? [In, Return]
       : [In, Currying<BaseFunction<Rest, Return>>]
     : []
-  : T extends MapFunction<infer In, infer Out>
-  ? In extends never
+  : [T] extends [MapFunction<infer In, infer Out>]
+  ? [In] extends [never]
     ? []
     : [In, Out]
   : [];
 
-type CanMapFunctionApply<T extends unknown, K extends unknown> = [T] extends [K]
+type CanMapFunctionApply<T extends unknown, K extends unknown> = [T] extends [
+  never
+]
+  ? false
+  : [K] extends [never]
+  ? false
+  : T extends K
   ? true
+  : T extends BaseFunction
+  ? K extends BaseFunction
+    ? CanCurryingExtend<T, K>
+    : false
   : false;
