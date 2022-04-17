@@ -1,9 +1,5 @@
-import {
-  FunctionCompose,
-  BaseFunction,
-  Currying,
-  FunctionSpread,
-} from "../type/function";
+import { BaseFunction, Currying, FunctionSpread } from "../type/function";
+import { FunctionCompose } from "../type/kit/function-compose";
 import { Repeat } from "../type/tuple";
 import { letCurrying } from "../core/$";
 
