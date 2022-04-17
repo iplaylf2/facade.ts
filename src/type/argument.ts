@@ -1,4 +1,4 @@
-import { LinkTuple, NotTuple } from "./tuple";
+import { NotTuple } from "./tuple";
 import { IsAny, NonUndefinedAble } from "./value";
 
 export type IsVariableParams<T extends unknown[]> = NotTuple<T> extends true
@@ -24,23 +24,27 @@ export type PartialAndEnablePlaceholder<Params extends unknown[]> =
     ? [_?: Head | Placeholder, ..._: PartialAndEnablePlaceholder<Rest>]
     : never;
 
-export type ApplyWithPlaceholder<
+export type TryApplyWithPlaceholder<
   Params extends unknown[],
   Args extends unknown[]
 > = [Params, Args] extends [Params, []]
-  ? Params
+  ? [Params]
   : [Params, Args] extends [
       [infer Head1, ...infer Params],
       [infer Head2, ...infer Args]
     ]
   ? IsAny<Head2> extends true
-    ? ApplyWithPlaceholder<Params, Args>
+    ? TryApplyWithPlaceholder<Params, Args>
     : [Head2] extends [Placeholder]
-    ? LinkTuple<Head1, ApplyWithPlaceholder<Params, Args>>
+    ? TryApplyWithPlaceholder<Params, Args> extends [infer Rest]
+      ? Rest extends unknown[]
+        ? [[Head1, ...Rest]]
+        : []
+      : []
     : [Head2] extends [Head1]
-    ? ApplyWithPlaceholder<Params, Args>
-    : never
-  : never;
+    ? TryApplyWithPlaceholder<Params, Args>
+    : []
+  : [];
 
 export type FixParameter<
   T extends unknown[],

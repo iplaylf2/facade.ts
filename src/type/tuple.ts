@@ -2,10 +2,6 @@ export type NotTuple<T extends unknown[]> = number extends T["length"]
   ? true
   : false;
 
-export type LinkTuple<T extends unknown, K extends unknown[]> = K extends never
-  ? never
-  : [T, ...K];
-
 export type Repeat<T extends unknown, N extends number, R extends T[] = []> = [
   R["length"]
 ] extends [N]
