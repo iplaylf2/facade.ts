@@ -1,7 +1,17 @@
 import { BaseFunction, Currying, FunctionSpread } from "../type/function";
+import { FunctionFlip } from "../type/kit/function-flip";
 import { FunctionCompose } from "../type/kit/function-compose";
 import { FunctionMargin } from "../type/kit/function-margin";
-import { letCurrying } from "../core/$";
+import { letCurrying, $ } from "../core/$";
+
+export function flip<T extends BaseFunction>(
+  f: T
+): Currying<FunctionSpread<FunctionFlip<T>>> {
+  const g = $(f);
+  return letCurrying(function (this: unknown, a: unknown, b: unknown) {
+    return (g as any).call(this, b, a);
+  }, 2);
+}
 
 export function compose<T extends BaseFunction, K extends BaseFunction[]>(
   f: T,

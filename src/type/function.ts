@@ -5,6 +5,10 @@ export type BaseFunction<Params extends unknown[] = any, Return = any> = (
   ...args: Params
 ) => Return;
 
+export type DeCurrying<T extends BaseFunction> = T extends Currying<infer T>
+  ? T
+  : T;
+
 export type FunctionSpread<T extends BaseFunction> =
   TryFunctionSpread<T> extends [BaseFunction<infer Params, infer Return>]
     ? (...args: Params) => Return
@@ -26,20 +30,18 @@ export type CanCurryingExtend<
   : K extends Currying<infer K>
   ? [K] extends [never]
     ? false
-    : [Parameters<K>["length"]] extends [0 | 1]
-    ? [T] extends [K]
+    : Parameters<K>["length"] extends 0 | 1
+    ? T extends K
       ? true
       : false
     : false
   : T extends Currying<infer T>
   ? [T] extends [never]
     ? false
-    : [T] extends [K]
+    : T extends K
     ? true
     : false
   : false;
-
-type DeCurrying<T extends BaseFunction> = T extends Currying<infer T> ? T : T;
 
 type TryFunctionSpread<T extends BaseFunction> =
   DeCurrying<T> extends BaseFunction<infer Params, infer Return>
