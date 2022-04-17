@@ -1,5 +1,5 @@
 import { ClassFunction } from "../type/class";
-import { FixParameter, IsVariableParams } from "../type/argument";
+import { ParamsFix, IsVariableParams } from "../type/argument";
 import { Currying } from "../type/function";
 import { letCurrying } from "./$";
 
@@ -15,7 +15,7 @@ export function $class<T extends ClassFunction, K extends number>(
   length: K
 ): K extends ConstructorParameters<T>["length"]
   ? T extends ClassFunction<infer Params, infer Instance>
-    ? Currying<(...args: FixParameter<Params, K>) => Instance>
+    ? Currying<(...args: ParamsFix<Params, K>) => Instance>
     : never
   : never;
 export function $class(ctor: ClassFunction, length = ctor.length): any {

@@ -1,5 +1,5 @@
 import { Currying, BaseFunction, FunctionSpread } from "../type/function";
-import { FixParameter, placeholder, Placeholder } from "../type/argument";
+import { ParamsFix, placeholder, Placeholder } from "../type/argument";
 
 export const $: {
   <T extends BaseFunction>(f: T): Currying<FunctionSpread<T>>;
@@ -8,7 +8,7 @@ export const $: {
     length: K
   ): K extends Parameters<T>["length"]
     ? T extends BaseFunction<infer Params, infer Return>
-      ? Currying<FunctionSpread<(...args: FixParameter<Params, K>) => Return>>
+      ? Currying<FunctionSpread<(...args: ParamsFix<Params, K>) => Return>>
       : never
     : never;
 } & Placeholder = Object.assign(

@@ -15,14 +15,14 @@ export interface Placeholder {
   [placeholder]: unknown;
 }
 
-export type EnablePlaceholder<Params extends unknown[]> =
+export type ParamsLoose<Params extends unknown[]> =
   Params extends []
     ? Params
     : Params extends [infer Head, ...infer Rest]
-    ? [_?: Head | Placeholder, ..._: EnablePlaceholder<Rest>]
+    ? [_?: Head | Placeholder, ..._: ParamsLoose<Rest>]
     : never;
 
-export type TryApplyWithPlaceholder<
+export type TryPlaceholderApply<
   Params extends unknown[],
   Args extends unknown[]
 > = [Params, Args] extends [Params, []]
@@ -32,19 +32,19 @@ export type TryApplyWithPlaceholder<
       [infer Head2, ...infer Args]
     ]
   ? IsAny<Head2> extends true
-    ? TryApplyWithPlaceholder<Params, Args>
+    ? TryPlaceholderApply<Params, Args>
     : [Head2] extends [Placeholder]
-    ? TryApplyWithPlaceholder<Params, Args> extends [infer Rest]
+    ? TryPlaceholderApply<Params, Args> extends [infer Rest]
       ? Rest extends unknown[]
         ? [[Head1, ...Rest]]
         : []
       : []
     : [Head2] extends [Head1]
-    ? TryApplyWithPlaceholder<Params, Args>
+    ? TryPlaceholderApply<Params, Args>
     : []
   : [];
 
-export type FixParameter<
+export type ParamsFix<
   T extends unknown[],
   Length extends number,
   R extends unknown[] = []
@@ -54,6 +54,6 @@ export type FixParameter<
   ? never
   : T extends [_?: infer X, ..._: infer Rest]
   ? [_?: X, ..._: Rest] extends T
-    ? FixParameter<Rest, Length, [...R, NonUndefinedAble<X>]>
-    : FixParameter<Rest, Length, [...R, X]>
+    ? ParamsFix<Rest, Length, [...R, NonUndefinedAble<X>]>
+    : ParamsFix<Rest, Length, [...R, X]>
   : never;
