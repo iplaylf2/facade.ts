@@ -1,6 +1,6 @@
 import { BaseFunction, Currying, FunctionSpread } from "../type/function";
 import { FunctionCompose } from "../type/kit/function-compose";
-import { Repeat } from "../type/tuple";
+import { FunctionMargin } from "../type/kit/function-margin";
 import { letCurrying } from "../core/$";
 
 export function compose<T extends BaseFunction, K extends BaseFunction[]>(
@@ -13,6 +13,6 @@ export function compose<T extends BaseFunction, K extends BaseFunction[]>(
 export function margin<T extends BaseFunction, K extends number>(
   f: T,
   length: K
-): Currying<FunctionSpread<BaseFunction<Repeat<any, K>, T>>> {
+): Currying<FunctionSpread<FunctionMargin<T, K>>> {
   return letCurrying(() => f, length);
 }
