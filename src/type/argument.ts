@@ -15,13 +15,11 @@ export interface Placeholder {
   [placeholder]: unknown;
 }
 
-export type PartialAndEnablePlaceholder<Params extends unknown[]> =
-  Params extends never
-    ? never
-    : Params extends []
+export type EnablePlaceholder<Params extends unknown[]> =
+  Params extends []
     ? Params
     : Params extends [infer Head, ...infer Rest]
-    ? [_?: Head | Placeholder, ..._: PartialAndEnablePlaceholder<Rest>]
+    ? [_?: Head | Placeholder, ..._: EnablePlaceholder<Rest>]
     : never;
 
 export type TryApplyWithPlaceholder<

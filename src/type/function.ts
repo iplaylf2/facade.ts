@@ -1,7 +1,7 @@
 import {
   TryApplyWithPlaceholder,
   IsVariableParams,
-  PartialAndEnablePlaceholder,
+  EnablePlaceholder,
 } from "./argument";
 
 export type BaseFunction<Params extends unknown[] = any, Return = any> = (
@@ -14,9 +14,10 @@ export type FunctionSpread<T extends BaseFunction> =
     : never;
 
 export type Currying<T extends BaseFunction> = {
-  <Args extends PartialAndEnablePlaceholder<Parameters<T>>>(
-    ...args: Args
-  ): CurryingApply<T, Args>;
+  <Args extends EnablePlaceholder<Parameters<T>>>(...args: Args): CurryingApply<
+    T,
+    Args
+  >;
   de: T;
 };
 
