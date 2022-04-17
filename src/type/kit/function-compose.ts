@@ -13,7 +13,7 @@ export type FunctionCompose<
           [infer In, infer To]
         ]
         ? CanMapFunctionApply<Out, In> extends true
-          ? FunctionCompose<(x: From) => To, Rest>
+          ? FunctionCompose<MapFunction<From, To>, Rest>
           : never
         : never
       : never
