@@ -20,9 +20,9 @@ export function compose<T extends BaseFunction, K extends BaseFunction[]>(
   return letCurrying((x: any) => rest.reduce((x, f) => f(x), f(x)), 1) as any;
 }
 
-export function margin<T extends BaseFunction, K extends number>(
+export function margin<T, K extends number = 0>(
   f: T,
-  length: K
+  length: K = 0 as K
 ): Currying<FunctionSpread<FunctionMargin<T, K>>> {
   return letCurrying(() => f, length);
 }
