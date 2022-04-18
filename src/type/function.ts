@@ -22,6 +22,15 @@ export type Currying<T extends BaseFunction> = {
   de: T;
 };
 
+export type CurryingApply<
+  T extends BaseFunction,
+  Args extends unknown[]
+> = TryPlaceholderApply<Parameters<T>, Args> extends [[...infer Params]]
+  ? Params extends []
+    ? ReturnType<T>
+    : Currying<(...args: Params) => ReturnType<T>>
+  : never;
+
 export type CanCurryingExtend<
   T extends BaseFunction,
   K extends BaseFunction
@@ -59,12 +68,3 @@ type TryFunctionSpread<T extends BaseFunction> =
         : [BaseFunction<Params, Return>]
       : []
     : [];
-
-type CurryingApply<
-  T extends BaseFunction,
-  Args extends unknown[]
-> = TryPlaceholderApply<Parameters<T>, Args> extends [[...infer Params]]
-  ? Params extends []
-    ? ReturnType<T>
-    : Currying<(...args: Params) => ReturnType<T>>
-  : never;

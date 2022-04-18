@@ -1,28 +1,50 @@
-import { BaseFunction, Currying, FunctionSpread } from "../type/function";
+import { BaseFunction } from "../type/function";
 import { FunctionFlip } from "../type/kit/function-flip";
 import { FunctionCompose } from "../type/kit/function-compose";
 import { FunctionMargin } from "../type/kit/function-margin";
-import { letCurrying, $ } from "../core/$";
+import { FunctionThrush } from "../type/kit/function-thrush";
 
-export function flip<T extends BaseFunction>(
-  f: T
-): Currying<FunctionSpread<FunctionFlip<T>>> {
-  const g = $(f);
-  return letCurrying(function (this: unknown, a: unknown, b: unknown) {
-    return (g as any).call(this, b, a);
-  }, 2);
+export function flip<T extends BaseFunction>(f: T): FunctionFlip<T> {
+  return function (this: unknown, a: unknown, b: unknown) {
+    return f.call(this, b, a);
+  } as any;
 }
 
 export function compose<T extends BaseFunction, K extends BaseFunction[]>(
   f: T,
   ...rest: K
-): Currying<FunctionSpread<FunctionCompose<T, K>>> {
-  return letCurrying((x: any) => rest.reduce((x, f) => f(x), f(x)), 1) as any;
+): FunctionCompose<T, K> {
+  return ((x: any) => rest.reduce((x, f) => f(x), f(x))) as any;
 }
 
 export function margin<T, K extends number = 0>(
-  f: T,
+  x: T,
   length: K = 0 as K
-): Currying<FunctionSpread<FunctionMargin<T, K>>> {
-  return letCurrying(() => f, length);
+): FunctionMargin<T, K> {
+  return new Proxy(() => x, {
+    get(target, p) {
+      if ("length" === p) {
+        return length;
+      } else {
+        return (target as any)[p];
+      }
+    },
+  });
+}
+
+export function thrush<T extends unknown[]>(...args: T): FunctionThrush<T> {
+  return new Proxy(
+    function (this: unknown, f: BaseFunction) {
+      return f.apply(this, args);
+    },
+    {
+      get(target, p) {
+        if ("length" === p) {
+          return args.length;
+        } else {
+          return (target as any)[p];
+        }
+      },
+    }
+  );
 }
