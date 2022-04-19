@@ -1,6 +1,6 @@
 {
   "name": "facade.ts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A functional style library for TypeScript.",
   "main": "./facade.js",
   "types": "./facade.d.js",
