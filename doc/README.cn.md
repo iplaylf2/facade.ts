@@ -92,7 +92,7 @@ const promise = $class(Promise);
 
 ### $call
 
-将 js 的调用形式创建为柯里化函数
+将 this.call 的调用形式创建为柯里化函数
 
 ```typescript
 const reduce = $call(Array.prototype.reduce, 2);
@@ -100,7 +100,7 @@ const reduce = $call(Array.prototype.reduce, 2);
 
 ### flip
 
-调换函数的前两个参数的顺序
+交换函数的前两个参数的顺序
 
 ```typescript
 flip((a: string, b: number) => a.repeat(b));
