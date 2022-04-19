@@ -13,8 +13,8 @@ export function $class<T extends ClassFunction>(
 export function $class<T extends ClassFunction, K extends number>(
   ctor: T,
   length: K
-): K extends ConstructorParameters<T>["length"]
-  ? T extends ClassFunction<infer Params, infer Instance>
+): T extends ClassFunction<infer Params, infer Instance>
+  ? K extends Params["length"]
     ? Currying<(...args: ParamsFix<Params, K>) => Instance>
     : never
   : never;

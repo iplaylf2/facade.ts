@@ -6,8 +6,8 @@ export const $: {
   <T extends BaseFunction, K extends number>(
     f: T,
     length: K
-  ): K extends Parameters<T>["length"]
-    ? T extends BaseFunction<infer Params, infer Return>
+  ): T extends BaseFunction<infer Params, infer Return>
+    ? K extends Params["length"]
       ? Currying<FunctionSpread<(...args: ParamsFix<Params, K>) => Return>>
       : never
     : never;
