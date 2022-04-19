@@ -24,7 +24,7 @@ export const $: {
   }
 );
 
-export const letCurrying = function (f: BaseFunction, length: number): any {
+export function letCurrying(f: BaseFunction, length: number): any {
   const anchor = new Proxy(function (this: unknown, ...args: unknown[]): any {
     if (0 !== length && 0 === args.length) {
       return anchor;
@@ -34,7 +34,11 @@ export const letCurrying = function (f: BaseFunction, length: number): any {
   }, currying_handler);
 
   return anchor;
-};
+}
+
+export function isCurrying(f: BaseFunction) {
+  return currying_function in f;
+}
 
 const currying_handler: ProxyHandler<any> = {
   get(target, p, receiver) {

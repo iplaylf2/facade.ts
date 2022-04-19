@@ -3,11 +3,16 @@ import { FunctionFlip } from "../type/kit/function-flip";
 import { FunctionCompose } from "../type/kit/function-compose";
 import { FunctionMargin } from "../type/kit/function-margin";
 import { FunctionThrush } from "../type/kit/function-thrush";
+import { isCurrying, letCurrying } from "../core/$";
 
 export function flip<T extends BaseFunction>(f: T): FunctionFlip<T> {
-  return function (this: unknown, a: unknown, b: unknown) {
-    return f.call(this, b, a);
-  } as any;
+  if (isCurrying(f)) {
+    return letCurrying(function (this: unknown, a: unknown, b: unknown) {
+      return f.call(this, b, a);
+    }, 2);
+  } else {
+    return new Proxy(f, flip_handler) as any;
+  }
 }
 
 export function compose<T extends BaseFunction, K extends BaseFunction[]>(
@@ -33,18 +38,18 @@ export function margin<T, K extends number = 0>(
 }
 
 export function thrush<T extends unknown[]>(...args: T): FunctionThrush<T> {
-  return new Proxy(
-    function (this: unknown, f: BaseFunction) {
-      return f.apply(this, args);
-    },
-    {
-      get(target, p) {
-        if ("length" === p) {
-          return args.length;
-        } else {
-          return (target as any)[p];
-        }
-      },
-    }
-  );
+  return function (this: unknown, f: BaseFunction) {
+    return f.apply(this, args);
+  };
 }
+
+const flip_handler: ProxyHandler<BaseFunction> = {
+  apply(target, thisArg, argsArray) {
+    return target.call(
+      thisArg,
+      argsArray[1],
+      argsArray[0],
+      ...argsArray.slice(2)
+    );
+  },
+};
