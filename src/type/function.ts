@@ -14,13 +14,16 @@ export type FunctionSpread<T extends BaseFunction> =
     ? (...args: Params) => Return
     : never;
 
-export type Currying<T extends BaseFunction> = {
+export interface Currying<T extends BaseFunction> {
   <Args extends ParamsLoose<Parameters<T>>>(...args: Args): CurryingApply<
     T,
     Args
   >;
+}
+
+export interface Currying<T extends BaseFunction> {
   de: T;
-};
+}
 
 export type CurryingApply<
   T extends BaseFunction,
