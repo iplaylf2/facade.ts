@@ -1,14 +1,9 @@
-import { IsFixedTuple } from "./tuple";
+import { IsFixedTuple, IsOptionalTuple } from "./tuple";
 import { IsAny, NonUndefinedAble } from "./value";
 
-export type IsVariableParams<T extends unknown[]> =
-  IsFixedTuple<T> extends false
-    ? true
-    : T extends [..._: infer Front, _?: infer Tail]
-    ? [..._: Front, _?: Tail] extends T
-      ? true
-      : false
-    : false;
+export type IsVariableParams<T extends unknown[]> = IsFixedTuple<T> extends true
+  ? IsOptionalTuple<T>
+  : true;
 
 export const placeholder = Symbol("placeholder");
 
