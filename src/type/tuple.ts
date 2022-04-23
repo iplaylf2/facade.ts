@@ -1,6 +1,6 @@
-export type NotTuple<T extends unknown[]> = number extends T["length"]
-  ? true
-  : false;
+export type IsFixedTuple<T extends unknown[]> = number extends T["length"]
+  ? false
+  : true;
 
 export type Repeat<T extends unknown, N extends number, R extends T[] = []> = [
   R["length"]
