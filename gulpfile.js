@@ -3,9 +3,9 @@ const fs = require("fs");
 const ts = require("gulp-typescript");
 const sm = require("gulp-sourcemaps");
 
-const package = "package";
-const project = ts.createProject("tsconfig.json");
-const code_dist = project.config.compilerOptions.outDir;
+const package_dir = "package";
+const ts_project = ts.createProject("tsconfig.json");
+const out_dir = ts_project.config.compilerOptions.outDir;
 const attached = ["LICENSE", "README.md"];
 
 function mkdir(name, cb) {
@@ -18,47 +18,47 @@ function mkdir(name, cb) {
   });
 }
 
-function mkdirDist(cb) {
-  mkdir(code_dist, cb);
+function mkdirOutDir(cb) {
+  mkdir(out_dir, cb);
 }
 
 function cleanDir(name, cb) {
   fs.rm(name, { recursive: true }, cb);
 }
 
-function cleanCodeDist(cb) {
-  cleanDir(code_dist, cb);
+function cleanOutDir(cb) {
+  cleanDir(out_dir, cb);
 }
 
 function compile() {
-  return project
+  return ts_project
     .src()
     .pipe(sm.init())
-    .pipe(project())
+    .pipe(ts_project())
     .pipe(sm.write("."))
-    .pipe(dest(code_dist));
+    .pipe(dest(out_dir));
 }
 
 function copyConfig() {
-  return src("package.json").pipe(dest(code_dist));
+  return src("package.json").pipe(dest(out_dir));
 }
 
-task("build", series(mkdirDist, cleanCodeDist, compile, copyConfig));
+task("build", series(mkdirOutDir, cleanOutDir, compile, copyConfig));
 
 function mkdirPackage(cb) {
-  mkdir(package, cb);
+  mkdir(package_dir, cb);
 }
 
 function cleanPackage(cb) {
-  cleanDir(package, cb);
+  cleanDir(package_dir, cb);
 }
 
 function dumpLibrary() {
-  return src(`${code_dist}/**/*`).pipe(dest(package));
+  return src(`${out_dir}/**/*`).pipe(dest(package_dir));
 }
 
 function fillPackage() {
-  return src(attached).pipe(dest(package));
+  return src(attached).pipe(dest(package_dir));
 }
 
 task(
